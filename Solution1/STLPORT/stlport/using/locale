@@ -5,7 +5,6 @@
 using _STLP_VENDOR_MB_NAMESPACE::mbstate_t;
 #endif
 
-/*
 // _lib.locale_, locale:
 using _STLP_NEW_IO_NAMESPACE::locale;
 using _STLP_NEW_IO_NAMESPACE::use_facet;
@@ -63,6 +62,4 @@ using _STLP_NEW_IO_NAMESPACE::messages_base;
 using _STLP_NEW_IO_NAMESPACE::messages;
 using _STLP_NEW_IO_NAMESPACE::messages_byname;
 #endif // _MSL_NO_MESSAGE_FACET
-
-*/
 #endif /* !defined(_STLP_NO_IMPORT_LOCALE) */

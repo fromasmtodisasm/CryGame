@@ -20,7 +20,7 @@
 
 #include <vector>
 #include <algorithm>
-#include <iostream>
+//#include <iostream>
 
 _DECLARE_SCRIPTABLEEX(CUIListView);
 CUIListView *CUIListView::m_pStaticThis = 0;
