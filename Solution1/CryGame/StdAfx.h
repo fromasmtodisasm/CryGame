@@ -48,7 +48,7 @@
 //////////////////////////////////////////////////////////////////////////
 #define REDUCED_FOR_PUBLIC_RELEASE				// remark this if you want to get more network stats (but keep it out of every public build)
 //#define NET_PACKET_LOGGING				// pure netcode debug purpose - very slow networking - writes files to c:/temp
- 
+
 
 //////////////////////////////////////////////////////////////////////////
 #ifdef GetClassName
@@ -65,7 +65,7 @@
 #	include "string.h"
 #endif
 
-#if defined(_AMD64_) && !defined(LINUX)
+#if (defined(_AMD64_) || defined(MODERN_PLATFORM)) && !defined(LINUX) 
 #include <io.h>
 #endif
 
@@ -87,24 +87,24 @@
 #define FIXME_ASSERT(cond) { if(!(cond)) { FORCE_EXIT();} }
 #endif
 
-template <class T> inline void ZeroStruct( T &t ) { memset( &t,0,sizeof(t) ); }
+template <class T> inline void ZeroStruct(T& t) { memset(&t, 0, sizeof(t)); }
 
 #ifdef PS2
-inline void __CRYTEKDLL_TRACE(const char *sFormat, ... )
+inline void __CRYTEKDLL_TRACE(const char* sFormat, ...)
 #else
-_inline void __cdecl __CRYTEKDLL_TRACE(const char *sFormat, ... )
+_inline void __cdecl __CRYTEKDLL_TRACE(const char* sFormat, ...)
 #endif
 {
 	va_list vl;
 	static char sTraceString[1024];
-	
+
 	va_start(vl, sFormat);
 	vsprintf(sTraceString, sFormat, vl);
 	va_end(vl);
 
 	strcat(sTraceString, "\n");
 
-	::OutputDebugString(sTraceString);	
+	::OutputDebugString(sTraceString);
 }
 
 #if 1
@@ -232,7 +232,7 @@ _inline void __cdecl __CRYTEKDLL_TRACE(const char *sFormat, ... )
 
 //////////////////////////////////////////////////////////////////////////
 //! Reports a Game Warning to validator with WARNING severity.
-inline void GameWarning( const char *format,... )
+inline void GameWarning(const char* format, ...)
 {
 	if (!format)
 		return;
@@ -242,44 +242,44 @@ inline void GameWarning( const char *format,... )
 	va_start(args, format);
 	vsprintf(buffer, format, args);
 	va_end(args);
-	CryWarning( VALIDATOR_MODULE_GAME,VALIDATOR_WARNING,buffer );
+	CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_WARNING, buffer);
 }
 
 //////////////////////////////////////////////////////////////////////////
-inline void __DumpEntity(ILog *pLog,IEntity *pEntity)
+inline void __DumpEntity(ILog* pLog, IEntity* pEntity)
 {
-	const char *sTemp=NULL;
+	const char* sTemp = NULL;
 	Vec3 v;
 	pLog->Log("************************************");
-	if(!pEntity)
+	if (!pEntity)
 	{
 		pLog->Log("DUMPING ENTITY .... the pEntity IS NULL");
 		return;
 	}
-	pLog->Log("DUMPING ENTITY %d",pEntity->GetId());
-	pLog->Log("CLASSID [%03d]",(int)pEntity->GetClassId());
-	sTemp=pEntity->GetEntityClassName();
-  pLog->Log("GetClassName return [%p]",sTemp);
-	pLog->Log("CLASSNAME %s",sTemp);
-	sTemp=pEntity->GetName();
-	pLog->Log("GetName return [%p]",sTemp);
-	pLog->Log("NAME %s",sTemp);
-	v=pEntity->GetPos();
-	pLog->Log("POS %f,%f,%f",v.x,v.y,v.z);
-	pLog->Log("CONTAINER (ptr)[%p]",pEntity->GetContainer());
+	pLog->Log("DUMPING ENTITY %d", pEntity->GetId());
+	pLog->Log("CLASSID [%03d]", (int)pEntity->GetClassId());
+	sTemp = pEntity->GetEntityClassName();
+	pLog->Log("GetClassName return [%p]", sTemp);
+	pLog->Log("CLASSNAME %s", sTemp);
+	sTemp = pEntity->GetName();
+	pLog->Log("GetName return [%p]", sTemp);
+	pLog->Log("NAME %s", sTemp);
+	v = pEntity->GetPos();
+	pLog->Log("POS %f,%f,%f", v.x, v.y, v.z);
+	pLog->Log("CONTAINER (ptr)[%p]", pEntity->GetContainer());
 	pLog->Log("************************************");
 }
 
 //////////////////////////////////////////////////////////////////////////
-inline void __DumpEntity(ILog *pLog,const CEntityDesc &desc)
+inline void __DumpEntity(ILog* pLog, const CEntityDesc& desc)
 {
-	const char *sTemp=NULL;
+	const char* sTemp = NULL;
 	Vec3 v;
 	pLog->Log("*************ENTITYDESCDUMP****************");
-	pLog->Log("CLASSID [%03d]",(int)desc.ClassId);
-	pLog->Log("CLASSNAME %s",desc.className.c_str());
-	v=desc.pos;
-	pLog->Log("POS %f,%f,%f",v.x,v.y,v.z);
+	pLog->Log("CLASSID [%03d]", (int)desc.ClassId);
+	pLog->Log("CLASSNAME %s", desc.className.c_str());
+	v = desc.pos;
+	pLog->Log("POS %f,%f,%f", v.x, v.y, v.z);
 	pLog->Log("************************************");
 }
 
@@ -287,57 +287,57 @@ inline void __DumpEntity(ILog *pLog,const CEntityDesc &desc)
 
 //////////////////////////////////////////////////////////////////////////
 //clamps angles to be within min-max range. Check for special case when min>max -- for example min=350 max=40
-inline float	ClampAngle360( float min, float max, float angl )
+inline float	ClampAngle360(float min, float max, float angl)
 {
-	if(min>max)
+	if (min > max)
 	{
-		if( angl>min || angl<max )
+		if (angl > min || angl < max)
 			return angl;
-		if( fabs( angl-min )<fabs( angl-max ) )
+		if (fabs(angl - min) < fabs(angl - max))
 			angl = min;
 		else
 			angl = max;
 		return angl;
 	}
 
-	if( angl<min ) 
+	if (angl < min)
 		angl = min;
-	else if( angl>max )
+	else if (angl > max)
 		angl = max;
 	return angl;
 }
 
 //////////////////////////////////////////////////////////////////////////
 //gets angles difference, checks for case when a1 and a2 on different sides of 0. for example a1=350 a2=10
-inline float	GetAngleDifference360( float a1, float a2 )
+inline float	GetAngleDifference360(float a1, float a2)
 {
-float	res = a1-a2;
+	float	res = a1 - a2;
 
-		if(res>180)
-			res = res-360;
-		else if(res<-180)
-			res = 360 + res;
-		return res;
+	if (res > 180)
+		res = res - 360;
+	else if (res < -180)
+		res = 360 + res;
+	return res;
 }
 
 //////////////////////////////////////////////////////////////////////////
 // clamps angles to be within min-max range. Check fro special case when min>max -- for example min=350 max=40
 // all angles have to be in range (0, 360)
-inline float	ClampAngle( float minA, float maxA, float angl, bool &bClamped )
+inline float	ClampAngle(float minA, float maxA, float angl, bool& bClamped)
 {
 	bClamped = false;
-	if(minA>maxA)
+	if (minA > maxA)
 	{
-		if( angl>minA || angl<maxA )
+		if (angl > minA || angl < maxA)
 			return angl;
 	}
 	else
-	 if( angl>minA && angl<maxA )
-		return angl;
+		if (angl > minA && angl < maxA)
+			return angl;
 
 	bClamped = true;
 
-	if( fabs(GetAngleDifference360(minA, angl)) < fabs(GetAngleDifference360(maxA, angl)) )
+	if (fabs(GetAngleDifference360(minA, angl)) < fabs(GetAngleDifference360(maxA, angl)))
 		return minA;
 	return maxA;
 }
@@ -345,18 +345,18 @@ inline float	ClampAngle( float minA, float maxA, float angl, bool &bClamped )
 //////////////////////////////////////////////////////////////////////////
 // clamps angles to be within min-max range. Check for special case when min>max -- for example min=350 max=40
 // all angles have to be in range (0, 360)
-inline float	ClampAngle( float minA, float maxA, float angl)
+inline float	ClampAngle(float minA, float maxA, float angl)
 {
-	if(minA>maxA)
+	if (minA > maxA)
 	{
-		if( angl>minA || angl<maxA )
+		if (angl > minA || angl < maxA)
 			return angl;
 	}
 	else
-	 if( angl>minA && angl<maxA )
-		return angl;
+		if (angl > minA && angl < maxA)
+			return angl;
 
-	if( fabs(GetAngleDifference360(minA, angl)) < fabs(GetAngleDifference360(maxA, angl)) )
+	if (fabs(GetAngleDifference360(minA, angl)) < fabs(GetAngleDifference360(maxA, angl)))
 		return minA;
 	return maxA;
 }
